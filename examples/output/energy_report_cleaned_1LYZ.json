@@ -1,0 +1,14 @@
+{
+  "output_type": "enzywizard_energy",
+  "energy_terms": {
+    "total_potential_energy": -16159.613438213382,
+    "harmonic_bond_force": 653.2508641938148,
+    "harmonic_angle_force": 1777.0217547464533,
+    "custom_bond_force": 1399.1264364655972,
+    "custom_torsion_force": 119.24365556013197,
+    "custom_nonbonded_force": -3640.4937214888632,
+    "nonbonded_force": -20966.391984529964,
+    "periodic_torsion_force": 4899.310067862338,
+    "cmap_torsion_force": -400.6805110228897
+  }
+}
