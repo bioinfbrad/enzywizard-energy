@@ -1,14 +1,14 @@
 {
   "output_type": "enzywizard_energy",
   "energy_terms": {
-    "total_potential_energy": -4871.866067867646,
-    "harmonic_bond_force": 378.82848337805143,
-    "harmonic_angle_force": 967.2292840830312,
-    "custom_bond_force": 772.7038218943933,
-    "custom_torsion_force": 46.42110438282614,
-    "custom_nonbonded_force": -2400.449133388698,
-    "nonbonded_force": -7916.325671597696,
-    "periodic_torsion_force": 3454.835165343639,
-    "cmap_torsion_force": -175.10912196319305
+    "total_potential_energy": -5060.497216524329,
+    "harmonic_bond_force": 393.32094479952985,
+    "harmonic_angle_force": 998.0443765529036,
+    "custom_bond_force": 766.0449349427913,
+    "custom_torsion_force": 50.13049721025344,
+    "custom_nonbonded_force": -2411.4744152873755,
+    "nonbonded_force": -8149.328148674216,
+    "periodic_torsion_force": 3484.133759765076,
+    "cmap_torsion_force": -191.36916583329077
   }
 }

@@ -6,7 +6,7 @@ from ..services.energy_service import run_energy_service
 def add_energy_parser(parser:ArgumentParser) -> None:
     parser.add_argument("-i","--input_path", required=True, help="Path to the input cleaned protein structure file in CIF or PDB format.")
     parser.add_argument("-o","--output_dir", required=True, help="Path to the output directory for saving the JSON report.")
-    parser.add_argument("--not_minimize_energy",action="store_false",dest="minimize_energy",help="Disable performing an energy minimization before energy evaluation (default: enabled).")
+    parser.add_argument("--no_minimize_energy",action="store_false",dest="minimize_energy",help="Disable performing an energy minimization before energy evaluation (default: enabled).")
     parser.set_defaults(minimize_energy=True)
     parser.add_argument("--minimization_iteration",type=int,default=1000,help="Maximum number of iterations for energy minimization (default: 1000). A smaller value may result in energy values closer to the instantaneous (non-minimized) state.")
     parser.set_defaults(func=run_energy)
