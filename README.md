@@ -29,7 +29,7 @@ Path to the input cleaned protein structure file in CIF or PDB format.
 Required.
 Path to the output directory for saving the JSON report.
 
---not_minimize_energy
+--no_minimize_energy
 Optional.
 Disable performing an energy minimization before energy evaluation.
 By default, energy minimization is enabled.
