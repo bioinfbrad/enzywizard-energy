@@ -116,6 +116,78 @@ def compute_energy_terms(struct: PDBFile | PDBxFile, logger: Logger, minimize_en
 
     return result
 
+
+
+def postprocess_energy_report_to_schema(
+    raw_report: Dict[str, Any],
+    logger: Logger,
+) -> Dict[str, Any] | None:
+    """
+    Postprocess the raw EnzyWizard-Energy report into the schema-compliant report.
+
+    """
+
+    if raw_report is None:
+        logger.print("[ERROR] Raw energy report is None.")
+        return None
+
+    if not isinstance(raw_report, dict):
+        logger.print("[ERROR] Raw energy report must be a dictionary.")
+        return None
+
+    raw_output_type = raw_report.get("output_type")
+    if raw_output_type != "enzywizard_energy":
+        logger.print(
+            f"[ERROR] Invalid raw energy report output_type: {raw_output_type}. "
+            "Expected: enzywizard_energy."
+        )
+        return None
+
+    raw_energy_terms = raw_report.get("energy_terms")
+    if raw_energy_terms is None:
+        logger.print("[ERROR] Raw energy report missing field: energy_terms.")
+        return None
+
+    if not isinstance(raw_energy_terms, dict):
+        logger.print("[ERROR] Raw energy_terms must be a dictionary.")
+        return None
+
+    field_mapping = {
+        "total_potential_energy": "total_potential_energy",
+        "harmonic_bond_force": "harmonic_bond_potential_energy",
+        "harmonic_angle_force": "harmonic_angle_potential_energy",
+        "custom_bond_force": "custom_bond_potential_energy",
+        "custom_torsion_force": "custom_torsion_potential_energy",
+        "custom_nonbonded_force": "custom_nonbonded_potential_energy",
+        "nonbonded_force": "nonbonded_potential_energy",
+        "periodic_torsion_force": "periodic_torsion_potential_energy",
+        "cmap_torsion_force": "cmap_torsion_potential_energy",
+    }
+
+    schema_energy_terms: Dict[str, float] = {}
+
+    for raw_field, schema_field in field_mapping.items():
+        if raw_field not in raw_energy_terms:
+            logger.print(f"[ERROR] Raw energy_terms missing field: {raw_field}.")
+            return None
+
+        value = raw_energy_terms[raw_field]
+        if not isinstance(value, (int, float)):
+            logger.print(
+                f"[ERROR] Invalid value for raw energy term '{raw_field}': {value}. "
+                "Expected a number."
+            )
+            return None
+
+        schema_energy_terms[schema_field] = float(value)
+
+    schema_report: Dict[str, Any] = {
+        "report_type": "enzywizard_energy",
+        "energy_terms": schema_energy_terms,
+    }
+
+    return schema_report
+
 def generate_energy_report(energy_terms: Dict[str, float],logger: Logger) -> Dict[str, Any] | None:
 
     if energy_terms is None or len(energy_terms) == 0:
@@ -126,7 +198,12 @@ def generate_energy_report(energy_terms: Dict[str, float],logger: Logger) -> Dic
         logger.print("[ERROR] Energy terms must be a dictionary.")
         return None
 
-    return {
+    raw_report = {
         "output_type": "enzywizard_energy",
         "energy_terms": energy_terms,
     }
+
+    return postprocess_energy_report_to_schema(
+        raw_report=raw_report,
+        logger=logger,
+    )
