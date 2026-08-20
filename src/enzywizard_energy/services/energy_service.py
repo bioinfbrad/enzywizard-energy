@@ -7,8 +7,12 @@ from ..algorithms.clean_algorithms import check_cleaned_structure
 from ..algorithms.energy_algorithms import compute_energy_terms, generate_energy_report
 from ..utils.common_utils import get_optimized_filename
 
-def run_energy_service(input_path: str | Path,output_dir: str | Path, minimize_energy: bool = True, minimization_iteration:int = 1000,force_field_file="charmm36.xml") -> bool:
+def run_energy_service(input_path: str | Path,output_dir: str | Path, minimize_energy: bool = True, minimization_iteration:int = 100,force_field_file="charmm36.xml") -> bool:
     # ---- logger ----
+    input_path = Path(input_path)
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
     logger = Logger(output_dir)
     logger.print(f"[INFO] Energy processing started: {input_path}")
 
@@ -17,14 +21,9 @@ def run_energy_service(input_path: str | Path,output_dir: str | Path, minimize_e
         logger.print(f"[ERROR] Invalid minimization_iteration: {minimization_iteration}. Must be a positive integer.")
         return False
 
-    input_path = Path(input_path)
-    output_dir = Path(output_dir)
-
     if not file_exists(input_path):
         logger.print(f"[ERROR] Input not found: {input_path}")
         return False
-
-    output_dir.mkdir(parents=True, exist_ok=True)
 
     # ---- get name ----
     name = get_stem(input_path)
@@ -40,7 +39,7 @@ def run_energy_service(input_path: str | Path,output_dir: str | Path, minimize_e
 
     openmm_structure = load_openmm_structure(input_path, logger)
     if openmm_structure is None:
-        logger.print(f"[ERROR] Failed to load structure: {input_path}")
+        logger.print(f"[ERROR] Failed to load OpenMM structure: {input_path}")
         return False
 
     logger.print("[INFO] Structure loaded")
@@ -54,19 +53,24 @@ def run_energy_service(input_path: str | Path,output_dir: str | Path, minimize_e
     logger.print("[INFO] Energy calculation started")
     energy_terms = compute_energy_terms(struct=openmm_structure,logger=logger,minimize_energy=minimize_energy,minimization_iteration=minimization_iteration,force_field_file=force_field_file)
     if energy_terms is None:
+        logger.print("[ERROR] Energy calculation failed")
         return False
 
     # ---- generate report ----
     report = generate_energy_report(energy_terms=energy_terms,logger=logger)
     if report is None:
+        logger.print("[ERROR] Failed to generate energy report")
         return False
 
     # ---- write output ----
     json_report_path = output_dir / get_optimized_filename(f"energy_report_{name}.json")
-    write_json_from_dict_inline_leaf_lists(report, json_report_path)
+    try:
+        write_json_from_dict_inline_leaf_lists(report, json_report_path)
+    except Exception as e:
+        logger.print(f"[ERROR] Failed to write report JSON to {json_report_path}: {e}")
+        return False
     logger.print(f"[INFO] Report JSON saved: {json_report_path}")
 
     logger.print("[INFO] Energy processing finished")
 
     return True
-
